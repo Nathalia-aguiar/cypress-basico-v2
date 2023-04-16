@@ -1,6 +1,7 @@
 /// <reference types="Cypress" />
 
 describe('Central de Atendimento ao Cliente TAT', () => {
+    const THREE_SECONDS_IN_MS = 3000;
 
     beforeEach(() => {
         cy.visit('./src/index.html')
@@ -12,6 +13,8 @@ describe('Central de Atendimento ao Cliente TAT', () => {
 
     it('preenche os campos obrigatórios e envia o formulário', () => {
         const longtext = 'Todas estas questões, devidamente ponderadas, levantam dúvidas sobre se o consenso sobre a necessidade de qualificação representa uma abertura para a melhoria do impacto na agilidade decisória.'
+        
+        cy.clock()
 
         cy.get('input[id="firstName"]').type('Nathália')
         cy.get('input[id="lastName"]').type('Souza')
@@ -21,17 +24,27 @@ describe('Central de Atendimento ao Cliente TAT', () => {
     
         cy.get('.success').should('be.visible')
 
+        cy.tick(THREE_SECONDS_IN_MS)
+
+        cy.get('.success').should('not.be.visible')
+
     })
 
-    it('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', () => {
+    it.only('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', () => {
+        cy.clock()
+
         cy.get('input[id="firstName"]').type('Nathália')
         cy.get('input[id="lastName"]').type('Souza')
         cy.get('input[id="email"]').type('nathalia@testemail.com,br')
         cy.get('#open-text-area').type('Teste')
         cy.contains('button', 'Enviar').click()
 
-
         cy.get('.error').should('be.visible')
+
+        cy.tick(THREE_SECONDS_IN_MS)
+
+        cy.get('.error').should('not.be.visible')
+
     })
 
     it('campo telefone continua vazio quando preenchido com valor não-numérico', () => {
@@ -49,6 +62,8 @@ describe('Central de Atendimento ao Cliente TAT', () => {
         cy.contains('button', 'Enviar').click()
 
         cy.get('.error').should('be.visible')
+
+
     })
 
     it('preenche e limpa os campos nome, sobrenome, email e telefone', () => {
